@@ -20,10 +20,23 @@
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 
+
+
 /*
  * Using the C preprocessor, we allow includes and macro expansion in this
  * linker script.
  */
 
-ENTRY(_start)
+ENTRY(bootasm)
+SECTIONS
+{
+    . = 0x7c00;
+    .text : {
+
+    *bootasm.o(.text)
+    *(.text);
+
+    }
+
+}
 

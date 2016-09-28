@@ -24,7 +24,8 @@
 #define SEG_KDATA 2  // kernel data+stack
 #define SEG_KCODE 1  // kernel code
 #define SEG_NULLASM 
-#define SEG_ASM(type,base,lim)  
+#define SEG_ASM(type,base,lim) 
+#define CR0_PE          0x00000001      // Protection Enable 
 
 
 .section .text
@@ -84,7 +85,7 @@ start32:
   movw    %ax, %gs                # -> GS
 
   # Set up the stack pointer and call into C.
-  movl    $start, %esp
+  movl    $bootasm, %esp
   call    bootmain
 
   # If bootmain returns (it shouldn't), trigger a Bochs
