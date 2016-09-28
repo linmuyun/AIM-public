@@ -27,44 +27,13 @@
 
 #define SECTSIZE  512
 
-typedef elf32hdr_t elfhdr;
-typedef elf32_phdr_t proghdr;
+
 
 void readseg(uint8_t*, uint32_t, uint32_t);
 
-static inline void
-outb(uint16_t port, uint8_t data)
-{
-  asm volatile("out %0,%1" : : "a" (data), "d" (port));
-}
 
-static inline void
-stosb(void *addr, int data, int cnt)
-{
-  asm volatile("cld; rep stosb" :
-               "=D" (addr), "=c" (cnt) :
-               "0" (addr), "1" (cnt), "a" (data) :
-               "memory", "cc");
-}
 
-static inline uint8_t
-inb(uint16_t port)
-{
-  uint8_t data;
-
-  asm volatile("in %1,%0" : "=a" (data) : "d" (port));
-  return data;
-}
-
-static inline void
-insl(int port, void *addr, int cnt)
-{
-  asm volatile("cld; rep insl" :
-               "=D" (addr), "=c" (cnt) :
-               "d" (port), "0" (addr), "1" (cnt) :
-               "memory", "cc");
-}
-
+uint8_t* mbr;
 
 void
 bootmain(void)
@@ -74,10 +43,13 @@ bootmain(void)
   void (*entry)(void);
   uint8_t* pa;
 
+  mbr = (uint8_t*)(0x7c00 + 0x1CE);
+  uint32_t disk_offs = *(uint32_t*)(mbr + 8) * SECTSIZE;
+
   elf = (elfhdr*)0x10000;  // scratch space
 
   // Read 1st page off disk
-  readseg((uint8_t*)elf, 4096, 0);
+  readseg((uint8_t*)elf, 4096, disk_offs);
 
   // Is this an ELF executable?
   if(*(uint32_t *)elf->e_ident != ELF_MAGIC)
@@ -88,7 +60,7 @@ bootmain(void)
   eph = ph + elf->e_phnum;
   for(; ph < eph; ph++){
     pa = (uint8_t*)ph->p_paddr;
-    readseg(pa, ph->p_filesz, ph->p_offset);
+    readseg(pa, ph->p_filesz, ph->p_offset + disk_offs);
     if(ph->p_memsz > ph->p_filesz)
       stosb(pa + ph->p_filesz, 0, ph->p_memsz - ph->p_filesz);
   }
@@ -138,7 +110,7 @@ readseg(uint8_t* pa, uint32_t count, uint32_t offset)
   pa -= offset % SECTSIZE;
 
   // Translate from bytes to sectors; kernel starts at sector 1.
-  offset = (offset / SECTSIZE) + 1;
+  offset = (offset / SECTSIZE);
 
   // If this is too slow, we could read lots of sectors at a time.
   // We'd write more to memory than asked, but it doesn't matter --
