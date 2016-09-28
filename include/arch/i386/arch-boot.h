@@ -21,6 +21,7 @@
 
 #ifndef __ASSEMBLER__
 
+#include "elf.h"
 
 typedef elf32hdr_t elfhdr;
 typedef elf32_phdr_t proghdr;

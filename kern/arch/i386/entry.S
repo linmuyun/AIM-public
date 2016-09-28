@@ -25,5 +25,11 @@
 .globl master_early_entry
 master_early_entry:
 
-	
+  cli 
 
+  push %ebp
+	mov %esp, %ebp
+  call master_early_init
+  pop %ebp
+
+  ret

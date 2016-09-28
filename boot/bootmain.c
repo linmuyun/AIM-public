@@ -22,7 +22,7 @@
 
 #include <sys/types.h>
 #include <aim/boot.h>
-#include <elf.h>
+
 #define ELF_MAGIC 0x464C457FU  // "\x7FELF" in little endian
 
 #define SECTSIZE  512
