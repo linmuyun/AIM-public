@@ -16,20 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#i looked at xv6 to do this
+//i looked at xv6 to do this
 
 #ifdef HAVE_CONFIG_H
 #include <config.h>
 #endif /* HAVE_CONFIG_H */
 #define SEG_KDATA 2  // kernel data+stack
 #define SEG_KCODE 1  // kernel code
-#define SEG_NULLASM 
-#define SEG_ASM(type,base,lim) 
+#include <asm.h>
+
 #define CR0_PE          0x00000001      // Protection Enable 
 
 
-.section .text
-
+.code16
 .globl bootasm
 bootasm:
  cli                         # BIOS enabled interrupts; disable
