@@ -22,6 +22,8 @@
 
 .text
 
-.globl _start
-_start:
+.globl master_early_entry
+master_early_entry:
+
+	
 
